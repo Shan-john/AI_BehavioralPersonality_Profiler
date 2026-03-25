@@ -1,0 +1,6 @@
+@AIProfilerAPI_HostAddress = http://localhost:5233
+
+GET {{AIProfilerAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

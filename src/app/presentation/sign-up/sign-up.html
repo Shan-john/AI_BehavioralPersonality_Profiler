@@ -1,0 +1,59 @@
+<div class="h-screen w-full flex flex-col md:flex-row md:justify-center md:items-center    bg-white gap-[50px]">
+  <div  >
+     <img class="h-[500px] w-fit" src="{{logo}}" alt="">
+ 
+  </div>
+  <div class="bg-blue-50 w-[400px] p-5 rounded-2xl shadow-2xl">
+    <form class="flex flex-col gap-4" (submit)="userLoginSummit(); $event.preventDefault()">
+      <h2 class="text-center text-4xl">Sign-Up</h2>
+      
+      <label for="email">Email</label>
+      <input
+        id="email"
+        class="border-2 rounded-[10px] h-10 px-1.5"
+        [(ngModel)]="user.email"
+        name="email"
+        type="email"
+        autocomplete="email"
+      />
+
+      <label for="password">Password</label>
+      <div class="flex flex-row gap-1.5 justify-between  border-2 rounded-[10px]">
+        <input
+          id="password"
+          class="  h-10 w-full px-1.5 outline-none"
+          [(ngModel)]="user.password"
+          name="password"
+          type="{{ showPassword ? 'text' : 'password' }}"
+          autocomplete="new-password"
+        />
+        <button class="pr-1.5" type="button" (click)="togglePasswordVisibility()">
+          <span>
+            {{ showPassword ? 'Hide' : 'Show' }}
+          </span>
+        </button>
+      </div>
+
+      <label for="confirmPassword">Confirm password</label>
+      <div class="flex flex-row gap-1.5 justify-between border-2 rounded-[10px]">
+        <input
+          id="confirmPassword"
+          class=" h-10 w-full px-1.5 outline-none"
+          [(ngModel)]="confirmpassword"
+          name="confirmPassword"
+          type="{{ showConfirmPassword ? 'text' : 'password' }}"
+          autocomplete="new-password"
+        />
+        <button class="pr-1.5" type="button" (click)="toggleConfirmPasswordVisibility()">
+          <span>  
+            {{ showConfirmPassword ? 'Hide' : 'Show' }}
+          </span>
+        </button>
+      </div>
+
+      <div class="flex justify-center mt-10">
+        <button type="submit" class="bg-blue-400 px-1.5 h-9 rounded-2xl w-full">sign-UP</button>
+      </div>
+    </form>
+  </div>
+</div>
