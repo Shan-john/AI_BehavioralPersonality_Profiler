@@ -1,0 +1,13 @@
+﻿Build started...
+Build succeeded.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='AIProfilerDB' AND TABLE_NAME='__EFMigrationsHistory';
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT `MigrationId`, `ProductVersion`
+      FROM `__EFMigrationsHistory`
+      ORDER BY `MigrationId`;
+20260326041856_InitialCreate
+20260326083026_AddReportsTable
+20260326084932_AddReportuserId

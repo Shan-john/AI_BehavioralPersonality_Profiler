@@ -15,7 +15,10 @@ constructor(private router: Router) {}
     this.router.navigate(['/signup'])
   }
 
-  navigat_to_warningpage(){
-    this.router.navigate(['/home/warningpage'])
-  }
+   
+  go_back_dashboard(){
+  this.router.navigate(['/home'])
+}
+go_to_testpage(   ){
+  this.router.navigate(['/home/testpage'])}
 }
