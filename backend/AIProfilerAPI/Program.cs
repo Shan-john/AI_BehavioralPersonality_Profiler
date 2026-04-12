@@ -1,36 +1,52 @@
-
 using Microsoft.EntityFrameworkCore;
 using AIProfilerAPI.Models;
 using AIProfilerAPI.Repositories;
+using AIProfilerAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Get connection string from appsettings
+// --- 1. CONFIGURATION ---
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Add DbContext with MySQL
+// --- 2. SERVICES ---
+
+// Add Controllers and OpenAPI (standard .NET 9 way)
+builder.Services.AddControllers();
+builder.Services.AddOpenApi(); // .NET 9 native support
+
+// Database configuration (MySQL)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-// Register Repository
+// Dependency Injection (Repositories)
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddHttpClient<OpenRouterService>();
 
-// Add services to the container.
-builder.Services.AddOpenApi();
-builder.Services.AddControllers();
-
+// CORS configuration (Essential for Angular integration)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200") // URL of the Angular frontend
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// --- 3. MIDDLEWARE ---
+
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapOpenApi(); // .NET 9 native support
 }
 
-app.UseHttpsRedirection();
-app.UseAuthorization();
+// Enable CORS
+app.UseCors("AllowLocalhost");
 
+// Map Controllers
 app.MapControllers();
 
 app.Run();

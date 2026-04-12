@@ -4,8 +4,13 @@
  
   </div>
   <div class="bg-blue-50 w-[400px] p-5 rounded-2xl shadow-2xl">
-    <form class="flex flex-col gap-4" (submit)="userLoginSummit(); $event.preventDefault()">
-      <h2 class="text-center text-4xl">Sign-Up</h2>
+    <form class="flex flex-col gap-4" (submit)="usersummit(); $event.preventDefault()">
+      @if (!indentifylogin){
+        <h2 class="text-center text-4xl">Sign-Up</h2>
+      }
+      @else {
+        <h2 class="text-center text-4xl">Login</h2>
+      }
       
       <label for="email">Email</label>
       <input
@@ -32,27 +37,23 @@
             {{ showPassword ? 'Hide' : 'Show' }}
           </span>
         </button>
+       
       </div>
-
-      <label for="confirmPassword">Confirm password</label>
-      <div class="flex flex-row gap-1.5 justify-between border-2 rounded-[10px]">
-        <input
-          id="confirmPassword"
-          class=" h-10 w-full px-1.5 outline-none"
-          [(ngModel)]="confirmpassword"
-          name="confirmPassword"
-          type="{{ showConfirmPassword ? 'text' : 'password' }}"
-          autocomplete="new-password"
-        />
-        <button class="pr-1.5" type="button" (click)="toggleConfirmPasswordVisibility()">
-          <span>  
-            {{ showConfirmPassword ? 'Hide' : 'Show' }}
-          </span>
-        </button>
-      </div>
+      @if (!indentifylogin){
+        <span class="text-blue-700 cursor-pointer" (click)="setlogin()" >if already have account login here</span>
+      }
+      @else {
+        <span class="text-blue-700 cursor-pointer" (click)="setregister()" >if you dont have account register here</span>
+      }
+        
 
       <div class="flex justify-center mt-10">
-        <button type="submit" class="bg-blue-400 px-1.5 h-9 rounded-2xl w-full">sign-UP</button>
+        @if(!showPassword){
+           <button type="submit" class="bg-blue-400 px-1.5 h-9 rounded-2xl w-full">sign-UP</button>
+        }@else if(showPassword){
+         <span class="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin inline-block"></span>
+        }
+       
       </div>
     </form>
   </div>

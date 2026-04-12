@@ -11,5 +11,5 @@
   "include": [
     "src/**/*.d.ts",
     "src/**/*.spec.ts"
-  ]
+, "src/app/presentation/test-page/test-service.ts", "src/app/admin/adminlogin/adminloginservice.ts"  ]
 }

@@ -5,7 +5,7 @@ namespace AIProfilerAPI.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly AppDbContext _context;
+             private readonly AppDbContext _context;
 
         public UserRepository(AppDbContext context)
         {

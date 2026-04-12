@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Imagelogo } from '../../assests/logo';
-   
+   import { SplashService } from './splashService';
 
 @Component({
   selector: 'app-splash',
@@ -11,14 +11,21 @@ import { Imagelogo } from '../../assests/logo';
 
 export class Splash implements OnInit {
 
- constructor(private router: Router) {}
+ constructor(private router: Router,private splashService: SplashService) {}
   logo:string = Imagelogo;
 
-
+    status:boolean = false;
   ngOnInit(): void {
-      let status = true;
+       let getProfile = this.splashService.getProfile(parseInt(localStorage.getItem("id")!));
+       if(getProfile){
+         this.status = localStorage.getItem("loginStatus")=="true";
+       }
+     else{
+      this.status = false;
+     }
+     
     setTimeout(() => {
-       if(status){
+       if(this.status){
          this.router.navigate(['/home']);
        }else{
         this.router.navigate(['/signup'])

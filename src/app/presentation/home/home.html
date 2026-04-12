@@ -7,12 +7,18 @@
     </div>
     
        
-      <div
+     @if(logininfo === 'false') { <div
         class="bg-transparent border-2 border-blue-700 rounded-[10px] h-[45px] w-[140px] p-1.5 flex items-center justify-center"
       >
-        <button class="text-[18px] text-blue-700">login</button>
+        <button (click)="login()" class="text-[18px] text-blue-700">login</button>
       
-    </div>
+    </div>}
+    @if(logininfo === 'true') { <div
+        class="bg-transparent border-2 border-blue-700 rounded-[10px] h-[45px] w-[140px] p-1.5 flex items-center justify-center"
+      >
+        <button (click)="logout()" class="text-[18px] text-blue-700">logout</button>
+      
+    </div>}
   </div>
   <!-- top app bar -->
   <!-- session -->
@@ -29,13 +35,10 @@
         <div
           class="mt-10 bg-blue-700 rounded-[10px] h-[45px] w-[140px] p-1.5 flex items-center justify-center"
         >
-          <button (click)="go_to_testpage()" class="text-[18px] text-amber-50">Start text</button>
+          <button (click)="go_to_testpage()" class="text-[18px] text-amber-50">Start test</button>
         </div>
-        <div
-          class="mt-10 bg-transparent border-2 border-blue-700 rounded-[10px] h-[45px] w-[140px] p-1.5 flex items-center justify-center"
-        >
-          <button (click)="login()" class="text-[18px] text-blue-700">login</button>
-        </div>
+         
+         
       </div>
     </div>
     
@@ -48,18 +51,18 @@
     <div class="md:flex space-y-9 gap-9">
       <div class="h-[200px] w-[300px] bg-white shadow-2xl rounded-2xl space-y-2.5   p-4.5">
         <div><img class="h-14" src="{{ logo }}" alt=""></div>
-        <h2 class="font-bold text-[16px]">about</h2> 
-        <h4 class="break-all ">Discover our mission to provide accurate ,scientific -backed behavioral analysis suign the latest ai technology</h4>
+        <h2 class="font-bold text-[16px]">Our Mission</h2> 
+        <h4 class="break-all ">Discover our mission to provide accurate, science-backed behavioral analysis using the latest generative AI technology.</h4>
       </div>
       <div class="h-[200px] w-[300px] bg-white shadow-2xl rounded-2xl space-y-2.5 p-4.5">
         <div><img class="h-14" src="{{ logo }}" alt=""></div>
-        <h2 class="font-bold text-[16px]">about</h2> 
-        <h4 class="break-all ">Discover our mission to provide accurate ,scientific -backed behavioral analysis suign the latest ai technology</h4>
+        <h2 class="font-bold text-[16px]">How It Works</h2> 
+        <h4 class="break-all ">Engage in a dynamic conversation with our intelligent AI system, which adapts its questions based on your unique responses.</h4>
       </div>
       <div class="h-[200px] w-[300px] bg-white shadow-2xl rounded-2xl space-y-2.5 p-4.5">
         <div><img class="h-14" src="{{ logo }}" alt=""></div>
-        <h2 class="font-bold text-[16px]">about</h2> 
-        <h4 class="break-all ">Discover our mission to provide accurate ,scientific -backed behavioral analysis suign the latest ai technology</h4>
+        <h2 class="font-bold text-[16px]">Deep Insights</h2> 
+        <h4 class="break-all ">Unlock profound self-awareness through an extensive final report detailing your strengths, weaknesses, and communication style.</h4>
       </div>
     </div>
     <!-- addonsction-->

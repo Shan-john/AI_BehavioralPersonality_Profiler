@@ -3,9 +3,9 @@ using AIProfilerAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AIProfilerAPI.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]
+{ [ApiController]
+    [Route("api/user")]
+   
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
@@ -41,6 +41,7 @@ namespace AIProfilerAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] User user)
         {
+            Console.WriteLine($"Login attempt: Email={user?.Email}");
             if (user == null || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
             {
                 return BadRequest("Email and Password are required");
@@ -50,6 +51,7 @@ namespace AIProfilerAPI.Controllers
             var dbUser = await _userRepository.GetUserByEmailAsync(user.Email);
             if (dbUser == null || dbUser.Password != user.Password)
             {
+                Console.WriteLine($"Login failed: Email={user?.Email}");
                 return Unauthorized("Invalid email or password");
             }
 

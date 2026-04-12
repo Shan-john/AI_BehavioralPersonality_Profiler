@@ -23,20 +23,20 @@ namespace AIProfilerAPI.Migrations
 
             modelBuilder.Entity("AIProfilerAPI.Models.Report", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("data")
+                    b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("userId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("Reports");
                 });
@@ -58,6 +58,10 @@ namespace AIProfilerAPI.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Report")
                         .IsRequired()
                         .HasColumnType("longtext");
 

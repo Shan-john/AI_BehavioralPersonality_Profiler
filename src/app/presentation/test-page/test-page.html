@@ -8,8 +8,12 @@
 
   <div class="flex flex-col items-start justify-center h-fit w-2/4 mt-10">
     <div class="flex justify-between w-full">
-      <p class="text-1xl">Step 4 of 10</p>
-      <p class="text-1xl">{{ progress }}%</p>
+    
+      <p class="text-1xl">Step {{ Math.round(progress) }} of 10</p>
+     
+
+      <p class="text-1xl">{{ Math.round(progress) }}%</p>
+    
     </div>
     <!-- progress bar -->
     <div class="w-full bg-blue-200 rounded-full h-4 shadow-inner mt-2.5">
@@ -19,7 +23,57 @@
       ></div>
     </div>
     <!-- progress bar -->
-    <div class="mt-10">
+   <!-- ui char -->
+   <div #chatContainer class="border-2 h-125 w-full rounded-2xl p-3 mt-5 flex flex-col gap-2 overflow-y-auto">
+
+  <div *ngFor="let message of messagelist; let i = index"
+       [ngClass]="message.sender === 'ai' ? 'flex justify-start' : 'flex justify-end'">
+
+    <div 
+      [ngClass]=" message.sender === 'ai' ? 'bg-gray-200 text-gray-800' : 'bg-blue-500 text-white'"
+      class="px-4 py-2 rounded-2xl max-w-xs   shadow">
+      
+      {{ message.text }}
+    
+    </div>
+    
+  </div>
+
+  <!-- ✅ ONLY ONE bottom anchor -->
+ 
+
+</div>
+    <!-- ui char -->
+    
+ 
+
+ 
+   <!-- text field -->
+   <div class="w-full h-15 flex">
+  <textarea
+    [(ngModel)]="messages"
+    (keydown.enter)="handleEnter($event)"
+    placeholder="Write your thoughts here..."
+    rows="2"
+    class="w-full h-full p-4 m-2.5 rounded-xl border border-gray-300 
+           focus:outline-none focus:ring-2 focus:ring-blue-400 
+           resize-none shadow-sm text-base leading-relaxed mb-2.5"
+  ></textarea>
+  <button  (click)="onMessageSubmit(messages)"
+      class="bg-blue-700 text-white px-4 py-2 rounded-[50px] mt-2 w-15 h-15 hover:bg-blue-700 hover:text-white"
+    >
+      Next
+    </button>
+</div>
+   
+<!-- text field -->
+    
+  </div>
+</div>
+
+<!-- 
+
+ <div class="mt-10">
       <h3 class="text-3xl font-medium">
         Describe your typical behavior in a dsfdsfjkhdsjkfhdsjkfkj fjsdh fjkhds fkjs dfjk sdjkfh dskjfh ksjdfh jksdhfjkdshfjkhdsfkj hsdkfjh dsjkfh dsjfh jksdhf ksdhfjkdshteam setting (question 4/10)
       </h3>
@@ -28,8 +82,4 @@
       </div>
     </div>
     <div class=" flex justify-end mt-10 w-full">
-      
-      <button class="border-2 border-blue-700 text-blue px-4 py-2 rounded-[10px] w-[100px] hover:bg-blue-700 hover:text-white">Next</button>
-    </div>
-  </div>
-</div>
+    -->
