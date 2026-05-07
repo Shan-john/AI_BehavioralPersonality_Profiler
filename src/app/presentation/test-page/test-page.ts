@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Imagelogo } from '../../assests/logo';
 import { ListFormat } from 'typescript';
 import { FormsModule } from '@angular/forms';
@@ -19,6 +20,7 @@ export class TestPage implements AfterViewChecked, OnInit {
   constructor(
     private chatService: ChatService,
     private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
   @ViewChild('chatContainer') chatContainer!: ElementRef;
   logo: string = Imagelogo;
@@ -27,6 +29,12 @@ export class TestPage implements AfterViewChecked, OnInit {
   messages: string = '';
   questionCount: number = 0;
   async ngOnInit(): Promise<void> {
+    const userIdStr = localStorage.getItem("id");
+    if (!userIdStr || userIdStr === "undefined" || userIdStr === "null" || localStorage.getItem("loginStatus") !== "true") {
+      this.router.navigate(['/signup']);
+      return;
+    }
+
     await this.delay(700);
     this.messagelist = [
       ...this.messagelist,
@@ -77,7 +85,21 @@ export class TestPage implements AfterViewChecked, OnInit {
     }
 
     this.questionCount++;
-    const userId = 1; // Replace with actual user ID logic
+    let userIdStr = localStorage.getItem("id");
+    
+    // Safety check for broken storage values
+    if (userIdStr === "undefined" || userIdStr === "null") {
+      userIdStr = null;
+      localStorage.removeItem("id");
+    }
+
+    const userId = (userIdStr && userIdStr !== "null") ? Number(userIdStr) : 0;
+    console.log('Current logged-in User ID:', userId);
+    
+    if (isNaN(userId) || userId === 0) {
+      console.warn('Warning: Invalid User ID detected. Report might not be associated correctly.');
+    }
+
     this.send(message, userId, this.questionCount);
   }
 

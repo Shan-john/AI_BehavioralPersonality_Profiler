@@ -16,13 +16,19 @@ constructor(private router: Router) {}
     this.router.navigate(['/signup'])
   }
   logout(){
-    localStorage.setItem("loginStatus","false")
-    this.router.navigate(['/signup'])
+    localStorage.setItem("loginStatus","false");
+    localStorage.removeItem("id");
+    this.router.navigate(['/signup']);
   }
    
   go_back_dashboard(){
   this.router.navigate(['/home'])
 }
-go_to_testpage(   ){
-  this.router.navigate(['/home/testpage'])}
+  go_to_testpage() {
+    if (this.logininfo === 'true') {
+      this.router.navigate(['/home/testpage']);
+    } else {
+      this.router.navigate(['/signup']);
+    }
+  }
 }

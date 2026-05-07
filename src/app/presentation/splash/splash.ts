@@ -16,13 +16,21 @@ export class Splash implements OnInit {
 
     status:boolean = false;
   ngOnInit(): void {
-       let getProfile = this.splashService.getProfile(parseInt(localStorage.getItem("id")!));
-       if(getProfile){
-         this.status = localStorage.getItem("loginStatus")=="true";
-       }
-     else{
+    const userIdStr = localStorage.getItem("id");
+    const loginStatus = localStorage.getItem("loginStatus");
+
+    if (userIdStr && userIdStr !== "undefined" && userIdStr !== "null" && loginStatus === "true") {
+      const id = parseInt(userIdStr);
+      if (!isNaN(id)) {
+        this.status = true;
+      } else {
+        this.status = false;
+        localStorage.removeItem("id");
+        localStorage.setItem("loginStatus", "false");
+      }
+    } else {
       this.status = false;
-     }
+    }
      
     setTimeout(() => {
        if(this.status){

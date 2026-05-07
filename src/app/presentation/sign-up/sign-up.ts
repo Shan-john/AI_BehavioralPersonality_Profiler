@@ -74,8 +74,9 @@ usersummit  (){
     this.register.userRegister(email,password).subscribe({
       next:(res:any)=>{
         console.log(res);
-        this.router.navigate(['/home']);
         localStorage.setItem("loginStatus","true")
+        localStorage.setItem("id",res.userId);
+        this.router.navigate(['/home']);
       },
       error:(err)=>{
         console.log(err);
@@ -87,9 +88,9 @@ usersummit  (){
     this.register.userLogin(email,password).subscribe({
       next:(res:any)=>{
         console.log(res);
-        this.router.navigate(['/home']);
         localStorage.setItem("loginStatus","true")
-        localStorage.setItem("id",res.id);
+        localStorage.setItem("id",res.userId);
+        this.router.navigate(['/home']);
       },
       error:(err)=>{
         console.log(err);

@@ -45,10 +45,12 @@ public async Task<IActionResult> Chat([FromBody] ChatRequest request, [FromQuery
     // If client sends QuestionCount = 15 → analyze
     if (request.QuestionCount >= MAX_QUESTIONS)
     {
+        Console.WriteLine($"Analyzing personality for userId: {userId}");
         var responses = sessions[userId.ToString()];
 
         // Analyze answers
         var result = await _aiService.AnalyzePersonality(responses);
+        
         // Save report
         Report report = new Report
         {
@@ -56,12 +58,18 @@ public async Task<IActionResult> Chat([FromBody] ChatRequest request, [FromQuery
             UserId = userId
         };
         await _reportRepository.AddReport(report);
+        Console.WriteLine($"Report saved to Reports table for userId: {userId}");
 
         User? user = await _userRepository.GetUserByIdAsync(userId);
         if (user != null)
         {
             user.Report = result;
             await _userRepository.UpdateUserAsync(user);
+            Console.WriteLine($"Report updated in Users table for email: {user.Email}");
+        }
+        else
+        {
+            Console.WriteLine($"User not found in database for userId: {userId}");
         }
 
         // Clear user session after completion

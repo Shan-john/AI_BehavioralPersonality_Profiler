@@ -48,12 +48,13 @@
         
 
       <div class="flex justify-center mt-10">
-        @if(!showPassword){
-           <button type="submit" class="bg-blue-400 px-1.5 h-9 rounded-2xl w-full">sign-UP</button>
-        }@else if(showPassword){
+        @if(!showloading){
+           <button type="submit" class="bg-blue-400 px-1.5 h-9 rounded-2xl w-full">
+             {{ indentifylogin ? 'Login' : 'Sign-Up' }}
+           </button>
+        }@else {
          <span class="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin inline-block"></span>
         }
-       
       </div>
     </form>
   </div>
