@@ -1,1 +1,1 @@
-export const Imagelogo: string = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS73kL1QPRxNg_Z6B32LPwkxdtwQMi6p5-8tg&s";
+export const Imagelogo: string = "https://img.freepik.com/free-vector/ai-powered-marketing-tools-ai-powered-research-marketing-tools-automation-e-commerce-search-customer-recommendation-machine-learning_335657-4497.jpg?semt=ais_hybrid&w=740&q=80";
