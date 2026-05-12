@@ -1,0 +1,46 @@
+# [ General ]
+.vscode/
+.idea/
+*.swp
+*.log
+.DS_Store
+
+# [ Angular / Node ]
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.vscode/
+frontend/build_err.txt
+frontend/build_error.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# [ .NET / C# ]
+backend/*/bin/
+backend/*/obj/
+backend/*/out/
+backend/*/App_Data/
+backend/*/build_out*.txt
+backend/*/migrations_list.txt
+*.user
+*.userosscache
+*.sln.docstates
+
+# [ Database ]
+*.db
+*.sqlite
+*.mdf
+*.ldf
+
+# [ Environment / Secrets ]
+.env
+.env.*
+appsettings.Development.json
+!backend/AIProfilerAPI/appsettings.Development.json
+# (Exclude specific development settings if they are templates, otherwise keep them ignored)
+
+# [ OS specific ]
+Thumbs.db
+ehthumbs.db
+Desktop.ini

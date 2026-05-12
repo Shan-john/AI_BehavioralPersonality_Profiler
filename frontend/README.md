@@ -1,6 +1,16 @@
-# AIBehavioralPersonalityProfiler
+# AI Behavioral Personality Profiler - Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.1.
+An interactive Angular application that leverages AI to profile user behavioral patterns through scenario-based questioning.
+
+## Key Features
+- **Dynamic AI Chat**: Responsive interface for answering scenario questions.
+- **Personality Dashboard**: View and manage previous personality reports.
+- **User Authentication**: Secure login and registration.
+- **Tailwind CSS**: Modern, fluid UI design.
+
+## Prerequisites
+- Node.js (v18+)
+- Angular CLI
 
 ## Development server
 

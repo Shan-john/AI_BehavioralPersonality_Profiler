@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AIProfilerAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e946b1e1c55c4c6195de9907bd79ba357d810860")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+85b4b1491b91640ee31da435b0488b5d18f9414c")]
 [assembly: System.Reflection.AssemblyProductAttribute("AIProfilerAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AIProfilerAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
