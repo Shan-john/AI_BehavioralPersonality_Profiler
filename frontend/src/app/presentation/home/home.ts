@@ -16,7 +16,8 @@ constructor(private router: Router) {}
     this.router.navigate(['/signup'])
   }
   logout(){
-    localStorage.setItem("loginStatus","false");
+    localStorage.removeItem("loginStatus");
+    localStorage.removeItem("isAdminLoggedIn");
     localStorage.removeItem("id");
     this.router.navigate(['/signup']);
   }

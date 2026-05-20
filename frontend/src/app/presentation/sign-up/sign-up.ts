@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserModel } from '../../model/userModel';
@@ -10,11 +10,19 @@ import { register } from './sign-up-service';
   imports: [FormsModule],
   templateUrl: './sign-up.html',
 })
-export class SignUp {
+export class SignUp implements OnInit {
 logo: string = Imagelogo;
 user: UserModel = new UserModel();  
 indentifylogin:boolean = false;
       constructor(private register: register,private router: Router ) {};
+
+  ngOnInit(): void {
+    if (localStorage.getItem('isAdminLoggedIn') === 'true') {
+      this.router.navigate(['/admin/admin-homepage']);
+    } else if (localStorage.getItem('loginStatus') === 'true') {
+      this.router.navigate(['/home']);
+    }
+  }
      
   showPassword:boolean = false;
    showloading:boolean = false;
@@ -102,7 +110,13 @@ usersummit  (){
         console.log(res);
         localStorage.setItem("loginStatus","true")
         localStorage.setItem("id",res.userId);
-        this.router.navigate(['/home']);
+        
+        if (res.role === 'Admin') {
+          localStorage.setItem('isAdminLoggedIn', 'true');
+          this.router.navigate(['/admin/admin-homepage']);
+        } else {
+          this.router.navigate(['/home']);
+        }
       },
       error:(err)=>{
         console.log(err);
@@ -116,7 +130,13 @@ usersummit  (){
         console.log(res);
         localStorage.setItem("loginStatus","true")
         localStorage.setItem("id",res.userId);
-        this.router.navigate(['/home']);
+        
+        if (res.role === 'Admin') {
+          localStorage.setItem('isAdminLoggedIn', 'true');
+          this.router.navigate(['/admin/admin-homepage']);
+        } else {
+          this.router.navigate(['/home']);
+        }
       },
       error:(err)=>{
         console.log(err);

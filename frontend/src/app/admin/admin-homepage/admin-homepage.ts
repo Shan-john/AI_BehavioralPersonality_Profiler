@@ -130,7 +130,9 @@ export class AdminHomepage implements OnInit {
   }
 
   logout() {
-    this.adminLoginService.logout();
+    localStorage.removeItem("loginStatus");
+    localStorage.removeItem("isAdminLoggedIn");
+    localStorage.removeItem("id");
     this.router.navigate(['/admin/adminlogin']);
   }
 }

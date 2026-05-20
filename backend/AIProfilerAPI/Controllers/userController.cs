@@ -34,7 +34,7 @@ namespace AIProfilerAPI.Controllers
             // Create new user (in production, hash the password)
             var newUser = await _userRepository.CreateUserAsync(user);
 
-            return Ok(new { message = "User registered successfully", userId = newUser.Id });
+            return Ok(new { message = "User registered successfully", userId = newUser.Id, role = newUser.Role });
         }
 
         // Login
@@ -55,7 +55,7 @@ namespace AIProfilerAPI.Controllers
                 return Unauthorized("Invalid email or password");
             }
 
-            return Ok(new { message = "Login successful", userId = dbUser.Id, email = dbUser.Email, name = dbUser.Name });
+            return Ok(new { message = "Login successful", userId = dbUser.Id, email = dbUser.Email, name = dbUser.Name, role = dbUser.Role });
         }
 
         // Update User

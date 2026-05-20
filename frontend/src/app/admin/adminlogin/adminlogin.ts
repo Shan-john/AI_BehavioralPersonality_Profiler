@@ -18,6 +18,8 @@ constructor(private adminloginService:adminloginService,private router: Router){
 ngOnInit(): void {
   if (this.adminloginService.isLoggedIn()) {
     this.router.navigate(['/admin/admin-homepage']);
+  } else if (localStorage.getItem('loginStatus') === 'true') {
+    this.router.navigate(['/home']);
   }
 }
 logo: string = Imagelogo;
@@ -27,10 +29,18 @@ checkadmin(email:string,password:string){
  this.adminloginService.adminLogin(email,password).subscribe({
     next:(res:any)=>{
       console.log(res);
-      localStorage.setItem('isAdminLoggedIn', 'true');
-      localStorage.setItem("id",res.userId);
       this.showloading = false;
-      this.router.navigate(['/admin/admin-homepage']);
+      
+      if (res.role === 'Admin') {
+        localStorage.setItem('isAdminLoggedIn', 'true');
+        localStorage.setItem("id",res.userId);
+        this.router.navigate(['/admin/admin-homepage']);
+      } else {
+        alert("Access Denied: You do not have admin privileges. Redirecting to your dashboard.");
+        localStorage.setItem("loginStatus","true")
+        localStorage.setItem("id",res.userId);
+        this.router.navigate(['/home']);
+      }
     },
 
     error:(err)=>{
