@@ -32,7 +32,7 @@ indentifylogin:boolean = false;
      console.log(this.user);
      
       if(this.user.email=== ""&& this.user.password === ""){
-       console.log("enter usernmae and password")
+       console.log("enter username and password")
       }else if(this.user.email=== "" ){
         console.log("enter username")
       }else if(this.user.password==""){

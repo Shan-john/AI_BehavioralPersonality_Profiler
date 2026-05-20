@@ -24,6 +24,9 @@ constructor(private router: Router) {}
   go_back_dashboard(){
   this.router.navigate(['/home'])
 }
+  go_to_settings() {
+    this.router.navigate(['/home/settings']);
+  }
   go_to_testpage() {
     if (this.logininfo === 'true') {
       this.router.navigate(['/home/testpage']);

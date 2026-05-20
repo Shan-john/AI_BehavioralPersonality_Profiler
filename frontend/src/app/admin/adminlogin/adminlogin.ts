@@ -11,9 +11,10 @@ import { FormsModule } from '@angular/forms';
 })
 export class Adminlogin implements OnInit{
 constructor(private adminloginService:adminloginService,private router: Router){}
-  ;
+  
   showPassword:boolean = false;
-  indentifylogin:boolean = false;
+  showloading:boolean = false;
+
 ngOnInit(): void {
   if (this.adminloginService.isLoggedIn()) {
     this.router.navigate(['/admin/admin-homepage']);
@@ -26,42 +27,35 @@ checkadmin(email:string,password:string){
  this.adminloginService.adminLogin(email,password).subscribe({
     next:(res:any)=>{
       console.log(res);
-      this.router.navigate(['/admin/admin-homepage']);
       localStorage.setItem('isAdminLoggedIn', 'true');
-      
+      localStorage.setItem("id",res.userId);
+      this.showloading = false;
+      this.router.navigate(['/admin/admin-homepage']);
     },
 
     error:(err)=>{
       console.log(err);
+      this.showloading = false;
       alert(err.error)
     }
   })
 }
 
  userloginSummit(){
-   
-     
       if(this.adminuser.email=== ""&& this.adminuser.password === ""){
-       console.log("enter usernmae and password")
+       console.log("enter username and password")
       }else if(this.adminuser.email=== "" ){
         console.log("enter username")
       }else if(this.adminuser.password==""){
          console.log("enter password")
       }else{
-      //suscess
-      this.checkadmin(this.adminuser.email,this.adminuser.password)
+      this.showloading = true;
+      this.checkadmin(this.adminuser.email, this.adminuser.password);
     }
   }
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
-  setlogin(){  
-    this.indentifylogin = true;
-  }
-  setregister(){
-    this.indentifylogin = false;
-  }
-  
 }
 
 

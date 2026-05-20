@@ -95,7 +95,7 @@ namespace AIProfilerAPI.Controllers
                 return NotFound("User not found");
             }
 
-            return Ok(new { userId = user.Id, email = user.Email, name = user.Name });
+            return Ok(new { userId = user.Id, email = user.Email, name = user.Name, report = user.Report });
         }
 
         // Delete user

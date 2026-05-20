@@ -5,9 +5,8 @@
   </div>
   <div class="bg-blue-50 w-[400px] p-5 rounded-2xl shadow-2xl">
     <form class="flex flex-col gap-4" (submit)="userloginSummit(); $event.preventDefault()">
-     
-        <h2 class="text-center text-4xl">Login</h2>
-     
+      
+      <h2 class="text-center text-4xl">Admin Login</h2>
       
       <label for="email">Email</label>
       <input
@@ -34,18 +33,16 @@
             {{ showPassword ? 'Hide' : 'Show' }}
           </span>
         </button>
-       
       </div>
-      
-        
 
       <div class="flex justify-center mt-10">
-        @if(!showPassword){
-           <button type="submit" class="bg-blue-400 px-1.5 h-9 rounded-2xl w-full">login</button>
-        }@else if(showPassword){
+        @if(!showloading) {
+           <button type="submit" class="bg-blue-400 px-1.5 h-9 rounded-2xl w-full text-white font-bold">
+             Login
+           </button>
+        } @else {
          <span class="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin inline-block"></span>
         }
-       
       </div>
     </form>
   </div>

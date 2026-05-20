@@ -6,13 +6,15 @@ namespace AIProfilerAPI.Services
     public class OpenRouterService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _model = "google/gemini-2.0-flash-001";
+        private readonly string _model = "google/gemini-2.5-flash";
         private readonly string? _apiKey;
+        private readonly string? _fallbackApiKey;
 
         public OpenRouterService(HttpClient httpClient, IConfiguration config)
         {
             _httpClient = httpClient;
             _apiKey = config["OpenRouter:ApiKey"];
+            _fallbackApiKey = config["OpenRouter:account1extrallamaapikey"];
         }
 
         // 🔹 Generate a new, intelligent, non-repetitive scenario question
@@ -62,11 +64,26 @@ Structure your analysis into these areas:
 2. Behavioral Masterclass (How they navigate the world)
 3. The Power & The Pivot (Distinctive strengths and potential blind spots)
 
+After your narrative, you MUST include a structured scoring section in EXACTLY this format (scores must be realistic integers from 0 to 100 based on your analysis):
+
+SCORES_START
+Empathy & Collaboration: [score]
+Resilience & Adaptability: [score]
+Analytical Depth: [score]
+Creativity & Innovation: [score]
+Leadership & Influence: [score]
+Decision Speed: [score]
+Stress Tolerance: [score]
+Focus Depth: [score]
+Risk Appetite: [score]
+SCORES_END
+
 Rules:
 - DO NOT use any markdown bolding (avoid double asterisks like **).
 - Use a professional yet deeply engaging and human tone.
 - Be specific and clever in your insights.
 - Keep the overall length concise but power-packed.
+- The scores MUST genuinely reflect the personality you analyzed. Do not give all high or all low scores.
 
 Responses:
 {combined}
@@ -81,12 +98,40 @@ Responses:
             catch { return "Analysis Error: AI service is currently unavailable."; }
         }
 
-        // ⚙️ OpenRouter API Call
+        // ⚙️ OpenRouter API Call with automatic fallback on rate-limit
         private async Task<string> CallOpenRouter(string prompt)
+        {
+            // Try primary key first, then fallback key on 429
+            var keysToTry = new List<string?> { _apiKey, _fallbackApiKey }
+                .Where(k => !string.IsNullOrEmpty(k))
+                .ToList();
+
+            foreach (var apiKey in keysToTry)
+            {
+                var result = await TryCallWithKey(prompt, apiKey!);
+                if (result.success)
+                    return result.content;
+
+                // If rate-limited (429), try next key
+                if (result.isRateLimited && apiKey != keysToTry.Last())
+                {
+                    Console.WriteLine("Rate limited, retrying with fallback key...");
+                    await Task.Delay(2000); // Brief wait before retry
+                    continue;
+                }
+
+                return result.content; // Return error for non-429 failures
+            }
+
+            return "OpenRouter API Error: All API keys exhausted or rate-limited.";
+        }
+
+        private async Task<(bool success, bool isRateLimited, string content)> TryCallWithKey(string prompt, string apiKey)
         {
             var requestBody = new
             {
                 model = _model,
+                max_tokens = 2000,
                 messages = new[]
                 {
                     new
@@ -100,19 +145,19 @@ Responses:
             var json = JsonSerializer.Serialize(requestBody);
 
             using var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://openrouter.ai/api/v1/chat/completions");
-            requestMessage.Headers.Add("Authorization", $"Bearer {_apiKey}");
-            requestMessage.Headers.Add("HTTP-Referer", "http://localhost:4200"); // Optional
-            requestMessage.Headers.Add("X-Title", "AIProfiler"); // Optional
+            requestMessage.Headers.Add("Authorization", $"Bearer {apiKey}");
+            requestMessage.Headers.Add("HTTP-Referer", "http://localhost:4200");
+            requestMessage.Headers.Add("X-Title", "AIProfiler");
             requestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.SendAsync(requestMessage);
-
             var result = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
+                bool isRateLimited = (int)response.StatusCode == 429;
                 Console.WriteLine($"OpenRouter API Error: Status={response.StatusCode}, Body={result}");
-                return $"OpenRouter API Error: {result}";
+                return (false, isRateLimited, $"OpenRouter API Error: {result}");
             }
 
             using var doc = JsonDocument.Parse(result);
@@ -124,11 +169,13 @@ Responses:
                 if (message.TryGetProperty("content", out var content))
                 {
                     var text = content.GetString();
-                    return text?.Trim() ?? "No response.";
+                    return (true, false, text?.Trim() ?? "No response.");
                 }
             }
 
-            return "No valid response from OpenRouter.";
+            return (false, false, "No valid response from OpenRouter.");
         }
     }
 }
+
+

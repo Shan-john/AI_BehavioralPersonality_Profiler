@@ -1,0 +1,221 @@
+<div class="min-h-screen bg-slate-50">
+
+  <!-- Top Bar -->
+  <div class="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-10">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer" (click)="goHome()">
+        <img class="h-10" [src]="logo" alt="Logo" />
+        <h1 class="font-bold text-lg text-slate-800">AI Profiler</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <a routerLink="/home" class="text-sm font-semibold text-slate-500 hover:text-slate-800 transition">Home</a>
+        <button (click)="logout()"
+                class="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 px-4 py-2 rounded-xl text-sm font-semibold transition border border-rose-100">
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-24">
+      <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+      <p class="text-slate-500 text-sm">Loading your profile...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="hasError && !isLoading" class="bg-white rounded-3xl border border-slate-100 shadow-xl p-12 text-center max-w-xl mx-auto">
+      <div class="text-4xl mb-4">⚠️</div>
+      <h3 class="text-xl font-bold text-slate-800 mb-2">Something went wrong</h3>
+      <p class="text-slate-500 text-sm mb-6">Could not load your profile data. Please try again.</p>
+      <button (click)="goHome()" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition">
+        Go Home
+      </button>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!isLoading && !hasError" class="space-y-8">
+
+      <!-- ===== PROFILE HEADER ===== -->
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden">
+        <!-- Gradient Banner -->
+        <div class="h-28 relative" style="background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);"></div>
+        
+        <div class="px-6 sm:px-8 pb-6 -mt-12">
+          <div class="flex flex-col sm:flex-row sm:items-end gap-5">
+            <!-- Avatar -->
+            <div class="w-24 h-24 rounded-2xl text-white flex items-center justify-center font-extrabold text-3xl shadow-xl border-4 border-white"
+                 style="background: linear-gradient(135deg, #4f46e5, #7c3aed);">
+              {{ userInitial }}
+            </div>
+            <div class="flex-1 pt-2">
+              <h2 class="text-2xl font-extrabold text-slate-900">{{ userName }}</h2>
+              <p class="text-sm text-slate-400 mt-0.5">{{ email }}</p>
+            </div>
+            <div class="flex gap-3 items-center">
+              <span *ngIf="hasReport" class="text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Profile Complete
+              </span>
+              <span *ngIf="!hasReport" class="text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                Pending Analysis
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== NO REPORT STATE ===== -->
+      <div *ngIf="!hasReport" class="bg-white rounded-3xl border border-slate-100 shadow-xl p-10 text-center max-w-2xl mx-auto">
+        <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">🧠</div>
+        <h3 class="text-2xl font-bold text-slate-800 mb-3">Take Your Behavioral Test</h3>
+        <p class="text-slate-500 mb-6 leading-relaxed max-w-md mx-auto">
+          Complete the AI-powered scenario questions to unlock your personalized behavioral personality profile with scores, insights, and archetypes.
+        </p>
+        <button (click)="startTest()"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl text-sm font-semibold shadow-lg transition-all transform hover:-translate-y-0.5">
+          🚀 Start Behavioral Test
+        </button>
+      </div>
+
+      <!-- ===== HAS REPORT ===== -->
+      <div *ngIf="hasReport" class="space-y-8">
+
+        <!-- Archetype + Overall Score -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+          <!-- Archetype Card -->
+          <div class="lg:col-span-7 text-white rounded-3xl shadow-xl p-8 relative overflow-hidden"
+               [ngStyle]="{'background': archetype.gradient}">
+            <div class="absolute -right-16 -top-16 w-48 h-48 rounded-full" style="background: rgba(255,255,255,0.1); filter: blur(40px);"></div>
+            <div class="relative">
+              <span class="text-xs uppercase font-extrabold tracking-widest px-3 py-1 rounded-full" style="background: rgba(255,255,255,0.2);">
+                Your Archetype
+              </span>
+              <div class="mt-6 flex items-baseline gap-4">
+                <span class="text-5xl">{{ archetype.emoji }}</span>
+                <div>
+                  <h2 class="text-3xl font-extrabold tracking-tight">{{ archetype.name }}</h2>
+                  <p class="text-sm font-medium mt-0.5" style="color: rgba(255,255,255,0.8);">{{ archetype.tagline }}</p>
+                </div>
+              </div>
+              <p class="mt-5 text-sm leading-relaxed" style="color: rgba(255,255,255,0.9);">{{ archetype.description }}</p>
+            </div>
+          </div>
+
+          <!-- Score Summary -->
+          <div class="lg:col-span-5 bg-white rounded-3xl border border-slate-100 shadow-xl p-6 flex flex-col justify-center items-center text-center">
+            <p class="text-xs uppercase font-extrabold text-slate-400 tracking-wider mb-3">Overall Behavioral Index</p>
+            <div class="w-28 h-28 rounded-full border-[6px] border-indigo-500 flex items-center justify-center mb-4">
+              <span class="text-3xl font-black text-indigo-600">{{ overallScore }}</span>
+            </div>
+            <span class="text-sm font-bold px-4 py-1.5 rounded-full"
+                  [ngStyle]="{
+                    'background-color': overallScore >= 70 ? '#dcfce7' : overallScore >= 50 ? '#fef9c3' : '#fee2e2',
+                    'color': overallScore >= 70 ? '#166534' : overallScore >= 50 ? '#854d0e' : '#991b1b'
+                  }">
+              {{ overallScore >= 70 ? 'Strong Profile' : overallScore >= 50 ? 'Moderate' : 'Developing' }}
+            </span>
+            <p class="text-[10px] text-slate-400 mt-3">Powered by Gemini AI Analysis</p>
+          </div>
+        </div>
+
+        <!-- Behavioral Traits -->
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-xl p-6 sm:p-8">
+          <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2 mb-6">
+            <span>📊</span> Your Behavioral Profile
+          </h3>
+          <div class="space-y-5">
+            <div *ngFor="let trait of behavioralTraits">
+              <div class="flex justify-between items-center mb-2">
+                <div class="flex items-center gap-2.5">
+                  <span class="w-9 h-9 rounded-xl flex items-center justify-center text-lg shadow-sm"
+                        [ngStyle]="{'background-color': trait.bgColor}">{{ trait.emoji }}</span>
+                  <div>
+                    <h4 class="text-sm font-bold text-slate-800">{{ trait.name }}</h4>
+                    <span class="text-[10px] text-slate-400">{{ trait.description }}</span>
+                  </div>
+                </div>
+                <div class="text-right flex items-center gap-2">
+                  <span class="text-base font-black text-slate-800">{{ trait.score }}</span>
+                  <span class="text-xs text-slate-400">/100</span>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                        [ngStyle]="{'background-color': trait.badgeBg, 'color': trait.badgeText}">{{ trait.level }}</span>
+                </div>
+              </div>
+              <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-1000"
+                     [ngStyle]="{'width': trait.score + '%', 'background': trait.barGradient}"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cognitive Metrics -->
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-xl p-6">
+          <h3 class="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+            <span>🧠</span> Cognitive Style
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div *ngFor="let m of cognitiveMetrics" class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+              <span class="text-2xl">{{ m.emoji }}</span>
+              <p class="text-xs font-semibold text-slate-600 mt-2">{{ m.name }}</p>
+              <p class="text-2xl font-black text-slate-800 mt-1">{{ m.score }}%</p>
+              <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
+                <div class="h-full rounded-full" [ngStyle]="{'width': m.score + '%', 'background-color': m.barColor}"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Narrative -->
+        <div class="space-y-5">
+          <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <span>📝</span> Your Personality Narrative
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center text-lg">🌟</div>
+                <div>
+                  <h4 class="text-base font-bold text-slate-800">Core Essence</h4>
+                  <p class="text-[10px] text-slate-400">Who you are at heart</p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{{ parsedReport.coreEssence }}</p>
+            </div>
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">⚙️</div>
+                <div>
+                  <h4 class="text-base font-bold text-slate-800">Behavioral Style</h4>
+                  <p class="text-[10px] text-slate-400">How you navigate the world</p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{{ parsedReport.behavioralMasterclass }}</p>
+            </div>
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg">⚖️</div>
+                <div>
+                  <h4 class="text-base font-bold text-slate-800">Power & Pivot</h4>
+                  <p class="text-[10px] text-slate-400">Your strengths & growth areas</p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{{ parsedReport.powerPivot }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="pt-6 border-t border-slate-100 text-center text-xs text-slate-400">
+        <p>&copy; 2026 AI Behavioral Personality Profiler &bull; Powered by Gemini</p>
+      </div>
+
+    </div>
+  </div>
+</div>

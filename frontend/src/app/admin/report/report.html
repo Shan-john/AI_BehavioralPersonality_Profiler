@@ -1,52 +1,274 @@
-<div class="min-h-screen bg-gray-100 py-8">
-  <div class="container mx-auto px-4">
-
-    <!-- Header -->
-    <div class="mb-6">
-      <h2 class="text-2xl font-bold text-gray-800">User Reports</h2>
-      <p class="text-gray-500 text-sm">View and manage user reports</p>
+<div class="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- Top Nav -->
+    <div class="mb-8 flex justify-between items-center">
+      <a routerLink="/admin/admin-homepage" 
+         class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Dashboard
+      </a>
+      
+      <button (click)="printReport()"
+              class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition-all transform hover:-translate-y-0.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+        </svg>
+        Print Report
+      </button>
     </div>
 
-    <!-- Reports Grid -->
-    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- NO REPORT STATE -->
+    <div *ngIf="!hasReport" class="bg-white rounded-3xl border border-slate-100 shadow-xl p-12 text-center max-w-2xl mx-auto my-12">
+      <div class="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">⌛</div>
+      <h3 class="text-2xl font-bold text-slate-800 mb-3">No Profiling Report Yet</h3>
+      <p class="text-slate-500 mb-6 leading-relaxed">
+        The user <span class="font-semibold text-slate-800">{{ email }}</span> has not yet completed the behavioral analysis.
+      </p>
+      <a routerLink="/admin/admin-homepage" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-6 py-2.5 rounded-xl transition text-sm">
+        Return to Dashboard
+      </a>
+    </div>
 
-      <!-- @for (user of users(); track $index) { -->
-        <div class="bg-white rounded-2xl shadow-md border p-5 hover:shadow-xl transition">
-
-          <!-- Top -->
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-12 h-12 bg-purple-500 text-white flex items-center justify-center rounded-full font-bold">
-              <!-- {{ user.email[]?.toUpperCase() }} -->
-            </div>
-            <div>
-              <p class="font-semibold text-gray-800">#{{ email }}</p>
-              <p class="text-xs text-gray-500">{{id}}</p>
-            </div>
+    <!-- HAS REPORT -->
+    <div *ngIf="hasReport" class="space-y-8">
+      
+      <!-- ===== HEADER IDENTITY CARD ===== -->
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex items-center gap-5">
+          <div class="w-16 h-16 rounded-2xl text-white flex items-center justify-center font-extrabold text-2xl shadow-lg"
+               [ngStyle]="{'background': 'linear-gradient(135deg, #6366f1, #8b5cf6)'}">
+            {{ email[0]?.toUpperCase() }}
           </div>
-
-          <!-- Email -->
-          <p class="text-sm text-gray-600 mb-2">
-            <!-- {{ user.email }} -->
-          </p>
-
-          <!-- Report -->
-          <div class="bg-gray-50 p-3 rounded-lg mb-4 border">
-            <p class="text-sm text-gray-700 whitespace-pre-wrap">
-              {{ report || 'No report submitted' }}
+          <div>
+            <div class="flex items-center gap-3 flex-wrap">
+              <h1 class="text-2xl font-bold text-slate-900">{{ email }}</h1>
+              <span class="bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-emerald-100 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Analyzed
+              </span>
+            </div>
+            <p class="text-sm text-slate-400 mt-1">
+              User ID: <span class="font-mono text-slate-600 font-medium">#{{ id }}</span>
             </p>
           </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="flex gap-4 border-t md:border-t-0 pt-4 md:pt-0 border-slate-100">
+          <div class="px-4 py-2 bg-slate-50 rounded-xl text-center min-w-[100px]">
+            <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Overall Score</p>
+            <p class="text-xl font-bold text-indigo-600">{{ overallScore }}/100</p>
+          </div>
+          <div class="px-4 py-2 bg-slate-50 rounded-xl text-center min-w-[100px]">
+            <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Archetype</p>
+            <p class="text-xl font-bold text-slate-800">{{ archetype.emoji }}</p>
+          </div>
+        </div>
+      </div>
 
-          <div class="flex justify-between items-center mb-3">
-            <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600">
-              {{  report ? 'Ai profilier analysis' : 'No Report' }}
-            </span>
+      <!-- ===== MAIN GRID ===== -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- LEFT COLUMN: Archetype + Cognitive Metrics -->
+        <div class="lg:col-span-5 space-y-8">
+          
+          <!-- Archetype Hero Card (inline gradient via ngStyle) -->
+          <div class="text-white rounded-3xl shadow-xl p-8 relative overflow-hidden"
+               [ngStyle]="{'background': archetype.gradient}">
+            <div class="absolute -right-16 -top-16 w-48 h-48 rounded-full" style="background: rgba(255,255,255,0.1); filter: blur(40px);"></div>
+            
+            <div class="relative">
+              <span class="text-xs uppercase font-extrabold tracking-widest px-3 py-1 rounded-full" style="background: rgba(255,255,255,0.2);">
+                Primary Archetype
+              </span>
+              
+              <div class="mt-6 flex items-baseline gap-4">
+                <span class="text-5xl">{{ archetype.emoji }}</span>
+                <div>
+                  <h2 class="text-3xl font-extrabold tracking-tight">{{ archetype.name }}</h2>
+                  <p class="text-sm font-medium mt-0.5" style="color: rgba(255,255,255,0.8);">{{ archetype.tagline }}</p>
+                </div>
+              </div>
+              
+              <p class="mt-6 text-sm leading-relaxed font-light" style="color: rgba(255,255,255,0.9);">
+                {{ archetype.description }}
+              </p>
+              
+              <div class="mt-8 pt-6 flex items-center justify-between text-xs" style="border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);">
+                <span>Assessment: Behavioral AI</span>
+                <span class="font-semibold text-white">Gemini Calibrated</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Cognitive Metrics Card -->
+          <div class="bg-white rounded-3xl border border-slate-100 shadow-xl p-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+              <span>🧠</span> Cognitive Style Metrics
+            </h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div *ngFor="let metric of cognitiveMetrics" class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm font-semibold text-slate-700">{{ metric.name }}</span>
+                  <span class="text-lg">{{ metric.emoji }}</span>
+                </div>
+                <div class="flex items-baseline gap-1.5">
+                  <span class="text-2xl font-black text-slate-800">{{ metric.score }}%</span>
+                </div>
+                
+                <!-- Progress bar with inline color -->
+                <div class="w-full bg-slate-200 h-1.5 rounded-full mt-3 overflow-hidden">
+                  <div class="h-full rounded-full transition-all duration-1000"
+                       [ngStyle]="{'width': metric.score + '%', 'background-color': metric.barColor}"></div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Actions -->
-          
         </div>
-    
+
+        <!-- RIGHT COLUMN: Behavioral Trait Scores -->
+        <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-100 shadow-xl p-6 sm:p-8">
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <span>📊</span> Behavioral Core Profile
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">Real scores from Gemini AI personality analysis</p>
+          </div>
+          
+          <div class="space-y-6">
+            <div *ngFor="let trait of behavioralTraits" class="group">
+              <!-- Trait Header -->
+              <div class="flex justify-between items-center mb-2">
+                <div class="flex items-center gap-2.5">
+                  <span class="w-9 h-9 rounded-xl flex items-center justify-center text-lg shadow-sm"
+                        [ngStyle]="{'background-color': trait.iconBg}">
+                    {{ trait.emoji }}
+                  </span>
+                  <div>
+                    <h4 class="text-sm font-bold text-slate-800">{{ trait.name }}</h4>
+                    <span class="text-[10px] font-medium text-slate-400">{{ trait.description }}</span>
+                  </div>
+                </div>
+                
+                <div class="text-right flex items-center gap-2">
+                  <span class="text-base font-black text-slate-800">{{ trait.score }}</span>
+                  <span class="text-xs text-slate-400">/100</span>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                        [ngStyle]="{'background-color': trait.badgeBg, 'color': trait.badgeText}">
+                    {{ trait.level }}
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Progress Bar with inline gradient -->
+              <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden shadow-inner">
+                <div class="h-full rounded-full transition-all duration-1000 ease-out"
+                     [ngStyle]="{'width': trait.score + '%', 'background': trait.barGradient}"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Overall Score Ring -->
+          <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-14 h-14 rounded-full border-4 border-indigo-500 flex items-center justify-center">
+                <span class="text-lg font-black text-indigo-600">{{ overallScore }}</span>
+              </div>
+              <div>
+                <p class="text-sm font-bold text-slate-800">Overall Behavioral Index</p>
+                <p class="text-[10px] text-slate-400">Average of all 5 trait dimensions</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold px-3 py-1.5 rounded-full"
+                  [ngStyle]="{
+                    'background-color': overallScore >= 70 ? '#dcfce7' : overallScore >= 50 ? '#fef9c3' : '#fee2e2',
+                    'color': overallScore >= 70 ? '#166534' : overallScore >= 50 ? '#854d0e' : '#991b1b'
+                  }">
+              {{ overallScore >= 70 ? 'Strong Profile' : overallScore >= 50 ? 'Moderate Profile' : 'Developing' }}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===== AI NARRATIVE SECTIONS ===== -->
+      <div class="space-y-6">
+        <div class="flex items-center gap-3">
+          <span class="p-2 bg-indigo-50 text-indigo-600 rounded-xl text-lg">📝</span>
+          <h3 class="text-xl font-bold text-slate-800">AI Personality Narrative</h3>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Core Essence -->
+          <div class="bg-white rounded-3xl border border-slate-100 shadow-lg p-6 flex flex-col justify-between hover:shadow-xl transition-shadow">
+            <div>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center font-bold text-lg">🌟</div>
+                <div>
+                  <h4 class="text-base font-bold text-slate-800">The Core Essence</h4>
+                  <p class="text-[10px] text-slate-400">Who they are at heart</p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{{ parsedReport.coreEssence }}</p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between text-xs text-violet-600 font-semibold">
+              <span>Deep Identity</span>
+              <span>Primary Driver</span>
+            </div>
+          </div>
+
+          <!-- Behavioral Masterclass -->
+          <div class="bg-white rounded-3xl border border-slate-100 shadow-lg p-6 flex flex-col justify-between hover:shadow-xl transition-shadow">
+            <div>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg">⚙️</div>
+                <div>
+                  <h4 class="text-base font-bold text-slate-800">Behavioral Masterclass</h4>
+                  <p class="text-[10px] text-slate-400">How they navigate the world</p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{{ parsedReport.behavioralMasterclass }}</p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between text-xs text-emerald-600 font-semibold">
+              <span>Adaptive Style</span>
+              <span>Interaction Mode</span>
+            </div>
+          </div>
+
+          <!-- Power & Pivot -->
+          <div class="bg-white rounded-3xl border border-slate-100 shadow-lg p-6 flex flex-col justify-between hover:shadow-xl transition-shadow">
+            <div>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-lg">⚖️</div>
+                <div>
+                  <h4 class="text-base font-bold text-slate-800">The Power & The Pivot</h4>
+                  <p class="text-[10px] text-slate-400">Strengths & blind spots</p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{{ parsedReport.powerPivot }}</p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between text-xs text-rose-600 font-semibold">
+              <span>Growth Focus</span>
+              <span>Blind Spot Risk</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      
+      <!-- FOOTER -->
+      <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400">
+        <p>&copy; 2026 AI Behavioral Personality Profiler</p>
+        <p class="mt-2 sm:mt-0">Powered by Google Gemini Intelligence</p>
+      </div>
 
     </div>
+
   </div>
 </div>
