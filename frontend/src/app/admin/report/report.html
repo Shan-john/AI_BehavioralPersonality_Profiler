@@ -203,7 +203,7 @@
           <h3 class="text-xl font-bold text-slate-800">AI Personality Narrative</h3>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div *ngIf="parsedReport.coreEssence" class="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           <!-- Core Essence -->
           <div class="bg-white rounded-3xl border border-slate-100 shadow-lg p-6 flex flex-col justify-between hover:shadow-xl transition-shadow">
@@ -259,6 +259,12 @@
             </div>
           </div>
 
+        </div>
+
+        <!-- Fallback if parsing fails -->
+        <div *ngIf="!parsedReport.coreEssence" class="bg-white rounded-3xl border border-slate-100 shadow-lg p-8">
+           <h4 class="text-lg font-bold text-slate-800 mb-4">Raw AI Analysis</h4>
+           <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line font-mono">{{ report }}</p>
         </div>
       </div>
       

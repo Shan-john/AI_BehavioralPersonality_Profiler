@@ -59,32 +59,43 @@ export class Settings implements OnInit {
         this.email = user.email || '';
         this.userName = this.extractNameFromEmail(this.email);
         this.userInitial = this.email[0]?.toUpperCase() || '?';
-        this.report = user.report || '';
-        this.hasReport = !!this.report && this.report.trim().length > 0;
 
-        if (this.hasReport) {
-          console.log("User has report, parsing...");
-          try {
-            const aiScores = this.extractAIScores(this.report);
-            const cleanReport = this.report.replace(/SCORES_START[\s\S]*?SCORES_END/i, '').trim();
-            this.parsedReport = this.parseReport(cleanReport);
-            this.behavioralTraits = this.getBehavioralTraits(cleanReport, aiScores);
-            this.archetype = this.getArchetype(this.behavioralTraits);
-            this.cognitiveMetrics = this.getCognitiveMetrics(aiScores);
-            this.overallScore = Math.round(
-              this.behavioralTraits.reduce((sum: number, t: any) => sum + t.score, 0) / this.behavioralTraits.length
-            );
-            console.log("Parsing successful!");
-          } catch (e) {
-            console.error("Error during parsing:", e);
+        // Fetch report separately from the Report API
+        this.settingsService.getReportByUserId(userId).subscribe({
+          next: (reportRes: any) => {
+            console.log("Report response:", reportRes);
+            this.report = reportRes.hasReport ? (reportRes.data || '') : '';
+            this.hasReport = !!this.report && this.report.trim().length > 0;
+
+            if (this.hasReport) {
+              console.log("User has report, parsing...");
+              try {
+                const aiScores = this.extractAIScores(this.report);
+                const cleanReport = this.report.replace(/SCORES_START[\s\S]*?SCORES_END/i, '').trim();
+                this.parsedReport = this.parseReport(cleanReport);
+                this.behavioralTraits = this.getBehavioralTraits(cleanReport, aiScores);
+                this.archetype = this.getArchetype(this.behavioralTraits);
+                this.cognitiveMetrics = this.getCognitiveMetrics(aiScores);
+                this.overallScore = Math.round(
+                  this.behavioralTraits.reduce((sum: number, t: any) => sum + t.score, 0) / this.behavioralTraits.length
+                );
+                console.log("Parsing successful!");
+              } catch (e) {
+                console.error("Error during parsing:", e);
+              }
+            } else {
+              console.log("User does not have a report yet.");
+            }
+
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error("Error fetching report:", err);
+            this.isLoading = false;
+            this.cdr.detectChanges();
           }
-        } else {
-          console.log("User does not have a report yet.");
-        }
-        
-        this.isLoading = false;
-        this.cdr.detectChanges();
-        console.log("Loading state set to false, UI should render now.");
+        });
       },
       error: (err) => {
         console.error("Error fetching user profile:", err);
@@ -129,21 +140,34 @@ export class Settings implements OnInit {
 
   parseReport(reportText: string) {
     let coreEssence = '', behavioralMasterclass = '', powerPivot = '';
-    const ci = reportText.indexOf("1. The Core Essence");
-    const bi = reportText.indexOf("2. Behavioral Masterclass");
-    const pi = reportText.indexOf("3. The Power & The Pivot");
-    if (ci !== -1 && bi !== -1 && pi !== -1) {
-      coreEssence = reportText.substring(ci + 19, bi).trim();
-      behavioralMasterclass = reportText.substring(bi + 25, pi).trim();
-      powerPivot = reportText.substring(pi + 24).trim();
+
+    // New concise format: CORE TRAITS / BEHAVIORAL PATTERNS / STRENGTHS & BLIND SPOTS
+    const ct = reportText.indexOf("CORE TRAITS:");
+    const bp = reportText.indexOf("BEHAVIORAL PATTERNS:");
+    const sb = reportText.indexOf("STRENGTHS & BLIND SPOTS:");
+
+    if (ct !== -1 && bp !== -1 && sb !== -1) {
+      coreEssence = reportText.substring(ct + "CORE TRAITS:".length, bp).trim();
+      behavioralMasterclass = reportText.substring(bp + "BEHAVIORAL PATTERNS:".length, sb).trim();
+      powerPivot = reportText.substring(sb + "STRENGTHS & BLIND SPOTS:".length).trim();
     } else {
-      const paragraphs = reportText.split(/\n\n+/);
-      if (paragraphs.length >= 3) {
-        coreEssence = paragraphs[0];
-        behavioralMasterclass = paragraphs[1];
-        powerPivot = paragraphs.slice(2).join('\n\n');
+      // Legacy format: 1. The Core Essence / 2. Behavioral Masterclass / 3. The Power & The Pivot
+      const ci = reportText.indexOf("1. The Core Essence");
+      const bi = reportText.indexOf("2. Behavioral Masterclass");
+      const pi = reportText.indexOf("3. The Power & The Pivot");
+      if (ci !== -1 && bi !== -1 && pi !== -1) {
+        coreEssence = reportText.substring(ci + 19, bi).trim();
+        behavioralMasterclass = reportText.substring(bi + 25, pi).trim();
+        powerPivot = reportText.substring(pi + 24).trim();
       } else {
-        coreEssence = reportText;
+        const paragraphs = reportText.split(/\n\n+/);
+        if (paragraphs.length >= 3) {
+          coreEssence = paragraphs[0];
+          behavioralMasterclass = paragraphs[1];
+          powerPivot = paragraphs.slice(2).join('\n\n');
+        } else {
+          coreEssence = reportText;
+        }
       }
     }
     return {

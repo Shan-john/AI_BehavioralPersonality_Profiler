@@ -17,13 +17,32 @@ namespace AIProfilerAPI.Controllers
             _reportRepository = reportRepository;
         }
 
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetReports(int userId)
+        // Get report by report ID
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetReportById(int id)
         {
-            var reports = await _reportRepository.GetReportById(userId);
-            return Ok(reports);
+            var report = await _reportRepository.GetReportById(id);
+            return Ok(report);
         }
 
-        
+        // Get report by userId
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetReportByUserId(int userId)
+        {
+            var report = await _reportRepository.GetReportByUserId(userId);
+
+            if (report == null)
+            {
+                return Ok(new { hasReport = false, data = (string?)null });
+            }
+
+            return Ok(new
+            {
+                hasReport = true,
+                reportId = report.Id,
+                userId = report.UserId,
+                data = report.Data
+            });
+        }
     }
 }

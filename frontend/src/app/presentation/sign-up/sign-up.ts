@@ -3,7 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserModel } from '../../model/userModel';
 import { Imagelogo } from "../../assests/logo";
-import { register } from './sign-up-service';
+import { SignUpService } from './sign-up-service';
+
 @Component({
   selector: 'app-sign-up',
   standalone: true,
@@ -11,10 +12,11 @@ import { register } from './sign-up-service';
   templateUrl: './sign-up.html',
 })
 export class SignUp implements OnInit {
-logo: string = Imagelogo;
-user: UserModel = new UserModel();  
-indentifylogin:boolean = false;
-      constructor(private register: register,private router: Router ) {};
+  logo: string = Imagelogo;
+  user: UserModel = new UserModel();  
+  indentifylogin:boolean = false;
+
+  constructor(private signUpService: SignUpService, private router: Router ) {};
 
   ngOnInit(): void {
     if (localStorage.getItem('isAdminLoggedIn') === 'true') {
@@ -25,7 +27,7 @@ indentifylogin:boolean = false;
   }
      
   showPassword:boolean = false;
-   showloading:boolean = false;
+  showloading:boolean = false;
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
@@ -50,62 +52,62 @@ indentifylogin:boolean = false;
       this.sendregister(this.user.email,this.user.password)
     }
   }
- usersignupSummit() {
-  console.log(this.user);
 
-  const email = this.user.email?.trim();
-  const password = this.user.password?.trim();
+  usersignupSummit() {
+    console.log(this.user);
 
-  // Email regex (must end with @gmail.com)
-  const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    const email = this.user.email?.trim();
+    const password = this.user.password?.trim();
 
-  // Password:
-  // Minimum 8 characters
-  // At least 1 uppercase
-  // At least 1 lowercase
-  // At least 1 number
-  // At least 1 special character
-  const passwordPattern =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    // Email regex (must end with @gmail.com)
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 
-  if (email === "" && password === "") {
-    console.log("Enter email and password");
+    // Password:
+    // Minimum 8 characters
+    // At least 1 uppercase
+    // At least 1 lowercase
+    // At least 1 number
+    // At least 1 special character
+    const passwordPattern =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-  } else if (email === "") {
-    console.log("Enter email");
+    if (email === "" && password === "") {
+      console.log("Enter email and password");
 
-  } else if (!emailPattern.test(email)) {
-    console.log("Email must end with @gmail.com");
+    } else if (email === "") {
+      console.log("Enter email");
 
-  } else if (password === "") {
-    console.log("Enter password");
+    } else if (!emailPattern.test(email)) {
+      console.log("Email must end with @gmail.com");
 
-  } else if (!passwordPattern.test(password)) {
-    console.log(
-      "Password must contain 8 characters, uppercase, lowercase, number and special character"
-    );
+    } else if (password === "") {
+      console.log("Enter password");
 
-  } else {
-    // Success
-    this.userLogin(email, password);
-  }
-}
-usersummit  (){
-  if(!this.indentifylogin){
-    this.showloading = true;  
-    this.userloginSummit();
-    this.showloading = false;
-  }else{
-    this.showloading = true;
-    this.usersignupSummit();
-    this.showloading = false;
+    } else if (!passwordPattern.test(password)) {
+      console.log(
+        "Password must contain 8 characters, uppercase, lowercase, number and special character"
+      );
+
+    } else {
+      // Success
+      this.userLogin(email, password);
+    }
   }
 
-}
+  usersummit() {
+    if(!this.indentifylogin){
+      this.showloading = true;  
+      this.userloginSummit();
+      this.showloading = false;
+    }else{
+      this.showloading = true;
+      this.usersignupSummit();
+      this.showloading = false;
+    }
+  }
   
-
   sendregister(email:string,password:string){
-    this.register.userRegister(email,password).subscribe({
+    this.signUpService.userRegister(email,password).subscribe({
       next:(res:any)=>{
         console.log(res);
         localStorage.setItem("loginStatus","true")
@@ -118,33 +120,32 @@ usersummit  (){
           this.router.navigate(['/home']);
         }
       },
-      error:(err)=>{
+      error:(err: any)=>{
         console.log(err);
         alert(err.error)
       }
     })
   }
-  userLogin(email:string,password:string){
-    this.register.userLogin(email,password).subscribe({
-      next:(res:any)=>{
-        console.log(res);
-        localStorage.setItem("loginStatus","true")
-        localStorage.setItem("id",res.userId);
-        
-        if (res.role === 'Admin') {
-          localStorage.setItem('isAdminLoggedIn', 'true');
-          this.router.navigate(['/admin/admin-homepage']);
-        } else {
-          this.router.navigate(['/home']);
-        }
-      },
-      error:(err)=>{
-        console.log(err);
-        alert(err.error)
-      }
-    })
-  }
-   
-    
 
+  userLogin(email:string,password:string){
+    this.signUpService.userLogin(email,password).subscribe({
+      next:(res:any)=>{
+        console.log(res);
+        localStorage.setItem("loginStatus","true")
+        localStorage.setItem("id",res.userId);
+        
+        if (res.role === 'Admin') {
+          localStorage.setItem('isAdminLoggedIn', 'true');
+          this.router.navigate(['/admin/admin-homepage']);
+        } else {
+          this.router.navigate(['/home']);
+        }
+      },
+      error:(err: any)=>{
+        console.log(err);
+        alert(err.error)
+      }
+    })
+  }
 }
+

@@ -14,10 +14,13 @@ namespace AIProfilerAPI.Repositories
             _context = context;
         }
 
+        public async Task<Report?> GetReportByUserId(int userId)
+        {
+            return await _context.Reports.FirstOrDefaultAsync(r => r.UserId == userId);
+        }
+
         public async Task<Report> GetReportById(int id)
         {
-            // Note: int is a value type, it cannot be null. 
-            // If the user meant checking for a valid ID (0 is often default for int), we can check id == 0.
             if (id <= 0)
             {
                 throw new System.Exception("Invalid Id");
@@ -29,7 +32,24 @@ namespace AIProfilerAPI.Repositories
 
         public async Task<Report> AddReport(Report report)
         {
+            // Upsert: if a report already exists for this user, update it
+            var existing = await _context.Reports.FirstOrDefaultAsync(r => r.UserId == report.UserId);
+            if (existing != null)
+            {
+                existing.Data = report.Data;
+                _context.Reports.Update(existing);
+                await _context.SaveChangesAsync();
+                return existing;
+            }
+
             await _context.Reports.AddAsync(report);
+            await _context.SaveChangesAsync();
+            return report;
+        }
+
+        public async Task<Report> UpdateReport(Report report)
+        {
+            _context.Reports.Update(report);
             await _context.SaveChangesAsync();
             return report;
         }

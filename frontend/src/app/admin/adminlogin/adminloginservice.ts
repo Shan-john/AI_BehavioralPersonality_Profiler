@@ -1,12 +1,12 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import {HttpClient} from '@angular/common/http';
-import { Adminlogin } from './adminlogin';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
- @Injectable({providedIn:'root'})
+import { environment } from '../../../environments/environment';
+
+@Injectable({providedIn:'root'})
  export class adminloginService{
   constructor(private http:HttpClient){}
- uri="http://localhost:5233/api/user/login";
- registerUri="http://localhost:5233/api/user/register";
+ uri = `${environment.apiUrl}/user/login`;
+ registerUri = `${environment.apiUrl}/user/register`;
 
   adminLogin(email: string, password: string) {
     const body = { email: email, password: password };

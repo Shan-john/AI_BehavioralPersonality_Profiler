@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-report',
@@ -14,6 +16,7 @@ export class Report implements OnInit {
   id: string = '';
   
   hasReport: boolean = false;
+  isLoading: boolean = true;
   
   parsedReport = {
     coreEssence: '',
@@ -33,35 +36,54 @@ export class Report implements OnInit {
   cognitiveMetrics: any[] = [];
   overallScore: number = 0;
 
-  constructor(private route: ActivatedRoute) {}
+  private reportApiUrl = `${environment.apiUrl}/report`;
+
+  constructor(
+    private route: ActivatedRoute, 
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    this.report = decodeURIComponent(
-      this.route.snapshot.paramMap.get('report') || ''
-    );
+    this.id = this.route.snapshot.paramMap.get('id') || '';
 
     this.email = decodeURIComponent(
       this.route.snapshot.paramMap.get('email') || ''
     );
 
-    this.id = decodeURIComponent(
-      this.route.snapshot.paramMap.get('id') || ''
-    );
+    // Fetch report by userId from the Report API
+    const userId = parseInt(this.id, 10);
+    if (userId > 0) {
+      this.http.get(`${this.reportApiUrl}/user/${userId}`).subscribe({
+        next: (res: any) => {
+          this.report = res.hasReport ? (res.data || '') : '';
+          this.hasReport = !!this.report && this.report.trim().length > 0;
 
-    this.hasReport = !!this.report && this.report !== 'null' && this.report !== 'undefined' && this.report.trim().length > 0 && this.report !== 'No report submitted';
+          if (this.hasReport) {
+            try {
+              const aiScores = this.extractAIScores(this.report);
+              const cleanReport = this.report.replace(/SCORES_START[\s\S]*?SCORES_END/i, '').trim();
+              this.parsedReport = this.parseReport(cleanReport);
+              this.behavioralTraits = this.getBehavioralTraits(cleanReport, aiScores);
+              this.archetype = this.getArchetype(this.behavioralTraits);
+              this.cognitiveMetrics = this.getCognitiveMetrics(aiScores);
+              this.overallScore = Math.round(this.behavioralTraits.reduce((sum: number, t: any) => sum + t.score, 0) / this.behavioralTraits.length);
+            } catch (err) {
+              console.error("Error parsing report:", err);
+            }
+          }
 
-    if (this.hasReport) {
-      // Extract AI scores from report (real scores from Gemini)
-      const aiScores = this.extractAIScores(this.report);
-      
-      // Strip the SCORES block from the narrative for clean display
-      const cleanReport = this.report.replace(/SCORES_START[\s\S]*?SCORES_END/i, '').trim();
-      
-      this.parsedReport = this.parseReport(cleanReport);
-      this.behavioralTraits = this.getBehavioralTraits(cleanReport, aiScores);
-      this.archetype = this.getArchetype(this.behavioralTraits);
-      this.cognitiveMetrics = this.getCognitiveMetrics(aiScores);
-      this.overallScore = Math.round(this.behavioralTraits.reduce((sum: number, t: any) => sum + t.score, 0) / this.behavioralTraits.length);
+          this.isLoading = false;
+          this.cdr.detectChanges(); // Force UI to update!
+        },
+        error: (err) => {
+          console.error("Error fetching report:", err);
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
+    } else {
+      this.isLoading = false;
     }
   }
 
@@ -97,28 +119,30 @@ export class Report implements OnInit {
     let coreEssence = '';
     let behavioralMasterclass = '';
     let powerPivot = '';
-    
-    const coreEssenceIndex = reportText.indexOf("1. The Core Essence");
-    const behavioralIndex = reportText.indexOf("2. Behavioral Masterclass");
-    const powerPivotIndex = reportText.indexOf("3. The Power & The Pivot");
-    
-    if (coreEssenceIndex !== -1 && behavioralIndex !== -1 && powerPivotIndex !== -1) {
-      coreEssence = reportText.substring(coreEssenceIndex + "1. The Core Essence".length, behavioralIndex).trim();
-      behavioralMasterclass = reportText.substring(behavioralIndex + "2. Behavioral Masterclass".length, powerPivotIndex).trim();
-      powerPivot = reportText.substring(powerPivotIndex + "3. The Power & The Pivot".length).trim();
+
+    // Robust regex parsing
+    const coreMatch = reportText.match(/CORE TRAITS:([\s\S]*?)BEHAVIORAL PATTERNS:/i);
+    const behaveMatch = reportText.match(/BEHAVIORAL PATTERNS:([\s\S]*?)STRENGTHS\s*(?:&|AND)\s*BLIND SPOTS:/i);
+    const powerMatch = reportText.match(/STRENGTHS\s*(?:&|AND)\s*BLIND SPOTS:([\s\S]*?)$/i);
+
+    if (coreMatch && behaveMatch && powerMatch) {
+      coreEssence = coreMatch[1];
+      behavioralMasterclass = behaveMatch[1];
+      powerPivot = powerMatch[1];
     } else {
-      const regexCore = /The Core Essence/i;
-      const regexBehavioral = /Behavioral Masterclass/i;
-      const regexPower = /The Power & The Pivot/i;
-      
-      const coreMatch = reportText.search(regexCore);
-      const behavioralMatch = reportText.search(regexBehavioral);
-      const powerMatch = reportText.search(regexPower);
-      
-      if (coreMatch !== -1 && behavioralMatch !== -1 && powerMatch !== -1) {
-        coreEssence = reportText.substring(coreMatch, behavioralMatch).replace(/.*The Core Essence\s*\(.*?\)?[:\-]?\s*/i, '').trim();
-        behavioralMasterclass = reportText.substring(behavioralMatch, powerMatch).replace(/.*Behavioral Masterclass\s*\(.*?\)?[:\-]?\s*/i, '').trim();
-        powerPivot = reportText.substring(powerMatch).replace(/.*The Power & The Pivot\s*\(.*?\)?[:\-]?\s*/i, '').trim();
+      // Legacy format
+      const regexCore = /The Core Essence[\s\S]*?(?=Behavioral Masterclass)/i;
+      const regexBehavioral = /Behavioral Masterclass[\s\S]*?(?=The Power & The Pivot)/i;
+      const regexPower = /The Power & The Pivot[\s\S]*?$/i;
+    
+      const cMatch = reportText.match(regexCore);
+      const bMatch = reportText.match(regexBehavioral);
+      const pMatch = reportText.match(regexPower);
+    
+      if (cMatch && bMatch && pMatch) {
+        coreEssence = cMatch[0].replace(/.*?The Core Essence\s*\(.*?\)?[:\-]?\s*/i, '');
+        behavioralMasterclass = bMatch[0].replace(/.*?Behavioral Masterclass\s*\(.*?\)?[:\-]?\s*/i, '');
+        powerPivot = pMatch[0].replace(/.*?The Power & The Pivot\s*\(.*?\)?[:\-]?\s*/i, '');
       } else {
         const paragraphs = reportText.split(/\n\n+/);
         if (paragraphs.length >= 3) {

@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using AIProfilerAPI.Constants;
 
 namespace AIProfilerAPI.Services
 {
@@ -24,21 +25,8 @@ namespace AIProfilerAPI.Services
                 ? string.Join("\n- ", previousQuestions)
                 : "None";
 
-            var prompt = $@"
-You are a creative AI interviewer. Your goal is to ask ONE short, engaging real-life scenario question to understand someone's behavior.
-
-Rules:
-- Do NOT repeat previous questions.
-- Previous questions asked: 
-- {previous}
-- Avoid yes/no questions; make it descriptive.
-- Make it imaginative, concise, and natural.
-- OUTPUT ONLY THE QUESTION. Do not include any instructions, explanations, or extra text.
-- Keep it to one line.
-
-Now generate the question:
-";
-
+            var prompt = PromptTemplates.GetScenarioQuestionPrompt(previous);
+ 
             try 
             {
                 var result = await CallOpenRouter(prompt);
@@ -53,41 +41,7 @@ Now generate the question:
         {
             var combined = string.Join("\n", responses);
 
-            var prompt = $@"
-You are a highly skilled psychological profiler and story teller. 
-
-Based on the responses below, create a captivating, insightful, and professional personality profile.
-Instead of a boring list, present your findings as a narrative character study.
-
-Structure your analysis into these areas:
-1. The Core Essence (Who they are at heart)
-2. Behavioral Masterclass (How they navigate the world)
-3. The Power & The Pivot (Distinctive strengths and potential blind spots)
-
-After your narrative, you MUST include a structured scoring section in EXACTLY this format (scores must be realistic integers from 0 to 100 based on your analysis):
-
-SCORES_START
-Empathy & Collaboration: [score]
-Resilience & Adaptability: [score]
-Analytical Depth: [score]
-Creativity & Innovation: [score]
-Leadership & Influence: [score]
-Decision Speed: [score]
-Stress Tolerance: [score]
-Focus Depth: [score]
-Risk Appetite: [score]
-SCORES_END
-
-Rules:
-- DO NOT use any markdown bolding (avoid double asterisks like **).
-- Use a professional yet deeply engaging and human tone.
-- Be specific and clever in your insights.
-- Keep the overall length concise but power-packed.
-- The scores MUST genuinely reflect the personality you analyzed. Do not give all high or all low scores.
-
-Responses:
-{combined}
-";
+            var prompt = PromptTemplates.GetPersonalityAnalysisPrompt(combined);
 
             try 
             {

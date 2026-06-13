@@ -10,8 +10,7 @@ namespace AIProfilerAPI.Controllers
     public class AIController : ControllerBase
     {
         private readonly OpenRouterService _aiService;
-          private readonly IReportRepository _reportRepository;
-          private readonly IUserRepository _userRepository;
+        private readonly IReportRepository _reportRepository;
          int count = 0;
         // session storage
         private static Dictionary<string, List<string>> sessions = new();
@@ -19,11 +18,10 @@ namespace AIProfilerAPI.Controllers
 
         private const int MAX_QUESTIONS = 15;
 
-        public AIController(OpenRouterService aiService, IReportRepository reportRepository, IUserRepository userRepository)
+        public AIController(OpenRouterService aiService, IReportRepository reportRepository)
         {
             _aiService = aiService;
             _reportRepository = reportRepository;
-            _userRepository = userRepository;
         }
 
         // 🚀 MAIN CHAT FLOW
@@ -39,7 +37,7 @@ public async Task<IActionResult> Chat([FromBody] ChatRequest request, [FromQuery
     // Save answer if provided
     if (!string.IsNullOrEmpty(request.Answer))
     {
-        sessions[userId.ToString()].Add(request.Answer);
+        sessions[userId.ToString()].Add($"A: {request.Answer}");
     }
 
     // If client sends QuestionCount = 15 → analyze
@@ -51,7 +49,7 @@ public async Task<IActionResult> Chat([FromBody] ChatRequest request, [FromQuery
         // Analyze answers
         var result = await _aiService.AnalyzePersonality(responses);
         
-        // Save report
+        // Save report (upserts — replaces existing report for this user)
         Report report = new Report
         {
             Data = result,
@@ -59,18 +57,6 @@ public async Task<IActionResult> Chat([FromBody] ChatRequest request, [FromQuery
         };
         await _reportRepository.AddReport(report);
         Console.WriteLine($"Report saved to Reports table for userId: {userId}");
-
-        User? user = await _userRepository.GetUserByIdAsync(userId);
-        if (user != null)
-        {
-            user.Report = result;
-            await _userRepository.UpdateUserAsync(user);
-            Console.WriteLine($"Report updated in Users table for email: {user.Email}");
-        }
-        else
-        {
-            Console.WriteLine($"User not found in database for userId: {userId}");
-        }
 
         // Clear user session after completion
         sessions.Remove(userId.ToString());
@@ -84,6 +70,9 @@ public async Task<IActionResult> Chat([FromBody] ChatRequest request, [FromQuery
 
     // Otherwise → generate next question
     var question = await _aiService.GenerateScenarioQuestion();
+    
+    // Save the generated question to the session so we have the context for the user's next answer
+    sessions[userId.ToString()].Add($"Q: {question}");
 
     return Ok(new
     {
@@ -100,4 +89,4 @@ public async Task<IActionResult> Chat([FromBody] ChatRequest request, [FromQuery
         public int UserId { get; set; }
     }
     }
-} 
+} 

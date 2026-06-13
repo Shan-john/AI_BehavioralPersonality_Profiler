@@ -1,14 +1,15 @@
-import{Injectable} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { environment } from '../../../environments/environment';
+
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class SplashService {
-    
-    constructor(private http: HttpClient) { }
-    apiurl="http://localhost:5233/api/user/profile/{id}";
+    apiurl = `${environment.apiUrl}/user/profile/{id}`;
 
-    getProfile(id: number) {
-        return this.http.get(this.apiurl.replace('{id}', id.toString()));
+    constructor(private http: HttpClient) {}
+    getUser(id: any) {
+        return this.http.get(this.apiurl.replace('{id}', id));
     }
 }

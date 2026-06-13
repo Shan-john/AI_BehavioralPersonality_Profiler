@@ -134,6 +134,11 @@ export class TestPage implements AfterViewChecked, OnInit {
           this.progress = (res.questionNumber / 15) * 100;
         } else {
           this.progress = 100;
+          // Test complete, navigate to profile after a short delay
+          this.messagelist = [...this.messagelist, { sender: 'ai', text: 'Redirecting to your detailed profile report...' }];
+          setTimeout(() => {
+            this.router.navigate(['/home/settings']);
+          }, 3000);
         }
         this.scrollToBottom();
         this.cdr.detectChanges();

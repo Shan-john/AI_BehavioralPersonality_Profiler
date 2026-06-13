@@ -19,7 +19,7 @@ export const routes: Routes = [
      {path : 'admin/adminlogin',component:Adminlogin},
      {path: 'admin', redirectTo: 'admin/admin-homepage', pathMatch: 'full'},
      {path:'admin/admin-homepage',component:AdminHomepage, canActivate: [adminGuard]},
-     {path:'admin/report/:report/:email/:id', component: Report, canActivate: [adminGuard]},
+     {path:'admin/report/:id/:email', component: Report, canActivate: [adminGuard]},
      {path: 'home/testpage',component:TestPage},
      {path: 'home/settings',component:Settings}
 ];

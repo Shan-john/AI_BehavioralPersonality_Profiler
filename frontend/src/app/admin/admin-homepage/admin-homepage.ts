@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { AdminHomepageService } from './admin-homepageService';
 import { UserModel } from '../../model/userModel';
 import { adminloginService } from '../adminlogin/adminloginservice';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-admin-homepage',
@@ -13,11 +15,13 @@ import { adminloginService } from '../adminlogin/adminloginservice';
 })
 export class AdminHomepage implements OnInit {
   users = signal<UserModel[]>([]);
+  userReports = signal<{[userId: number]: string}>({});
   
   totalUsers = computed(() => this.users().length);
   
   analyzedUsersCount = computed(() => {
-    return this.users().filter(u => this.hasReport(u.report)).length;
+    const reports = this.userReports();
+    return this.users().filter(u => this.hasReport(reports[u.id])).length;
   });
   
   pendingUsersCount = computed(() => {
@@ -41,14 +45,40 @@ export class AdminHomepage implements OnInit {
         (user: any) => user.email !== 'admin@gmail.com'
       );
       this.users.set(filteredUsers);
+
+      // Fetch reports for all users
+      if (filteredUsers.length > 0) {
+        const reportRequests = filteredUsers.map((user: any) =>
+          this.adminHomepageService.getReportByUserId(user.id).pipe(
+            catchError(() => of({ hasReport: false, data: null }))
+          )
+        );
+        forkJoin(reportRequests as any[]).subscribe({
+          next: (reports: any[]) => {
+            const reportMap: {[userId: number]: string} = {};
+            reports.forEach((reportRes: any) => {
+              if (reportRes && reportRes.hasReport && reportRes.userId) {
+                reportMap[reportRes.userId] = reportRes.data || '';
+              }
+            });
+            this.userReports.set(reportMap);
+          },
+          error: (err) => console.error('Error fetching reports:', err)
+        });
+      }
     });
   }
 
-  hasReport(report: string): boolean {
+  getUserReport(userId: number): string {
+    return this.userReports()[userId] || '';
+  }
+
+  hasReport(report: string | undefined): boolean {
     return !!report && report !== 'null' && report !== 'undefined' && report.trim().length > 0 && report !== 'No report submitted';
   }
 
-  getArchetype(reportText: string): {name: string, emoji: string} | null {
+  getArchetype(userId: number): {name: string, emoji: string} | null {
+    const reportText = this.getUserReport(userId);
     if (!this.hasReport(reportText)) {
       return null;
     }
@@ -125,8 +155,8 @@ export class AdminHomepage implements OnInit {
     return archetypes[highestName] || { name: 'Explorer', emoji: '🧭' };
   }
 
-  openReport(report: string, email: string, id: string){
-    this.router.navigate(['/admin/report', encodeURIComponent(report || 'No report submitted'), encodeURIComponent(email), encodeURIComponent(id)]);
+  openReport(userId: number, email: string){
+    this.router.navigate(['/admin/report', userId, encodeURIComponent(email)]);
   }
 
   logout() {
@@ -136,3 +166,4 @@ export class AdminHomepage implements OnInit {
     this.router.navigate(['/admin/adminlogin']);
   }
 }
+

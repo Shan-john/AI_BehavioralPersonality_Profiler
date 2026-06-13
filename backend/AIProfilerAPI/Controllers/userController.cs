@@ -84,7 +84,7 @@ namespace AIProfilerAPI.Controllers
             return Ok(new { message = "User updated successfully", user = dbUser });
         }
 
-        // Get user profile by ID
+        // Get user profile by ID (user data only, fetch report via api/report/user/{id})
         [HttpGet("profile/{id}")]
         public async Task<IActionResult> GetProfile(int id)
         {
@@ -95,7 +95,12 @@ namespace AIProfilerAPI.Controllers
                 return NotFound("User not found");
             }
 
-            return Ok(new { userId = user.Id, email = user.Email, name = user.Name, report = user.Report });
+            return Ok(new
+            {
+                userId = user.Id,
+                email = user.Email,
+                name = user.Name
+            });
         }
 
         // Delete user
