@@ -40,8 +40,8 @@ export class TestPage implements AfterViewChecked, OnInit {
       ...this.messagelist,
       { sender: 'ai', text: '👋 Welcome to the Personality Insights Test!' },
     ];
+    
     await this.delay(1000);
-    this.cdr.detectChanges();
     this.messagelist = [
       ...this.messagelist,
       {
@@ -49,9 +49,8 @@ export class TestPage implements AfterViewChecked, OnInit {
         text: "I'm going to ask you a series of questions to understand your personality traits better.",
       },
     ];
+    
     await this.delay(1000);
-    this.cdr.detectChanges();
-
     this.messagelist = [
       ...this.messagelist,
       {
@@ -59,13 +58,12 @@ export class TestPage implements AfterViewChecked, OnInit {
         text: 'This is not a clinical assessment, but a fun way to gain some self-awareness.',
       },
     ];
+    
     await this.delay(1000);
-    this.cdr.detectChanges();
     this.messagelist = [
       ...this.messagelist,
       { sender: 'ai', text: "Ready to begin? Just say 'yes' or 'ready' when you want to start." },
     ];
-    this.cdr.detectChanges();
   }
   delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
